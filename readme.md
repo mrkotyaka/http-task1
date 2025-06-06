@@ -3,24 +3,70 @@
 
 Необходимо выполнить и предоставить на проверку следующие задачи:
 
-1. [Запрос на получение списка фактов о кошках](./task1/README.md);
-2. [Чтение данных API NASA](./task2/README.md) (задача со звездочкой *).
+1. [Запрос на получение списка фактов о кошках](#point_1);
+2. [Чтение данных API NASA](https://github.com/mrkotyaka/http-task2#java-core) (задача со звездочкой *).
 
 =======
 
-Задачи со звездочкой `*` необязательны для получения зачета.
-Если вы хотите прислать дополнительное задание позже, напишите об этом при сдаче домашнего задания в личном кабинете на сайте [netology.ru](https://netology.ru).
+# <a name="point_1">Запрос на получение списка фактов о кошках"</a>
 
-Любые вопросы по решению задач задавайте в чате учебной группы (ссылку вы найдете в письме на вашей эл. почте).
+## Описание
+По адресу https://raw.githubusercontent.com/netology-code/jd-homeworks/master/http/task1/cats находится список фактов о кошках. Наша задача - сделать запрос к этому ресурсу и отфильтровать факты, за которые никто не проголосовал (поле upvotes).
+Формат каждой записи следующий:
+```json
+{
+  "id": "5b4910ae0508220014ccfe91",
+  "text": "Кошки могуть создавать более 100 разных звуков, тогда как собаки только около 10.",
+  "type": "cat",
+  "user": "Alex Petrov",
+  "upvotes": null
+},
+```
+```text
+id - уникальный идентификатор записи
+text - сообщение
+type - тип животного
+user - имя пользователя
+upvotes - голоса
+```
 
-## Инструкция по выполнению домашнего задания
+## Что нужно сделать
+- Прочитать весь список и вернуть только те факты, у которых поле upvotes не равно `null`.
 
-1. Пишите код в IDE (рекомендуем [Intellij IDEA](https://www.jetbrains.com/idea/download/), версия Community).
-    1. Почему лучше работать в IDE? — Ускоряет работу, есть подсветка ошибок, отладка по шагам.
-    2. Почему Intellij IDEA? — она бесплатная, умная, большинство разработчиков пользуются именно ей.
-2. Опирайтесь на принятый [стиль оформления кода](https://github.com/netology-code/codestyle/blob/master/java/README.md).
-3. Готовый код необходимо загрузить в специально созданный для данного домашнего задания репозиторий на сайте [github.com](https://github.com/).
-4. На сайте [github.com](https://github.com/) найдите только что созданный репозиторий. Перейдя в репозиторий, нажмите на зеленую кнопку CODE и скопируйте появившуюся ссылку.
-5. В личном кабинете на сайте [netology.ru](https://netology.ru/) в поле комментария к домашней работе вставьте скопированную ссылку и отправьте работу на проверку.
-
-*Никаких файлов прикреплять не нужно.*
+## Реализация
+1. Перед тем как начать откройте url https://raw.githubusercontent.com/netology-code/jd-homeworks/master/http/task1/cats в браузере и посмотрите на данные;
+2. Создайте проект `maven` или `gradle` и добавьте в pom.xml или gradle.build библиотеку apache httpclient
+   Пример:
+```text
+<dependency>
+   <groupId>org.apache.httpcomponents</groupId>
+   <artifactId>httpclient</artifactId>
+   <version>4.5.12</version>
+</dependency>
+```
+3. Создайте метод в который добавьте и настройте класс `CloseableHttpClient` например с помощью builder
+```text
+CloseableHttpClient httpClient = HttpClientBuilder.create()
+    .setDefaultRequestConfig(RequestConfig.custom()
+        .setConnectTimeout(5000)    // максимальное время ожидание подключения к серверу
+        .setSocketTimeout(30000)    // максимальное время ожидания получения данных
+        .setRedirectsEnabled(false) // возможность следовать редиректу в ответе
+        .build())
+    .build();
+```
+4. Добавьте объект запроса HttpGet request = new HttpGet("https://raw.githubusercontent.com/netology-code/jd-homeworks/master/http/task1/cats") и
+   вызовите удаленный сервис `CloseableHttpResponse response = httpClient.execute(request)`;
+5. Добавьте в pom.xml или gradle.build библиотеку для работы с json
+   Пример:
+```text
+<dependency>
+   <groupId>com.fasterxml.jackson.core</groupId>
+   <artifactId>jackson-databind</artifactId>
+   <version>2.11.1</version>
+</dependency>
+```
+6. Создайте класс, в который будем преобразовывать json ответ от сервера;
+7. Преобразуйте json в список java объектов;
+8. Отфильтруйте список - например, средствами stream api, с помощью метода filter(value -> value.getUpvotes() != null && value.getUpvotes() > 0);
+9. Выведите результат на экран;
+10. Отправьте задачу на проверку.
